@@ -21,9 +21,12 @@ module:
       enum: ["pending", "in_progress", "completed"]
   generate_service: true
   strategies:
-    - name: "Safety-Inspection"
+    - filename: "Safety-Inspection"
+      name: "SafetyInspection"
       description: "安全巡检"
-    - name: "Equipment-Inspection"
+    - filename: "Equipment-Inspection"
+      name: "EquipmentInspection"
       description: "设备巡检"
-    - name: "Quality-Inspection"
+    - filename: "Quality-Inspection"
+      name: "QualityInspection"
       description: "质量巡检"

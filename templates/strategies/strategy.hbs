@@ -3,12 +3,12 @@ import { {{module.name}} } from '../models/{{module.nameLower}}.model';
 import { {{module.nameLower}}Strategy } from './{{module.nameLower}}-strategy.interface';
 
 @Injectable()
-export class {{name}}Strategy implements {{module.nameLower}}Strategy {
+export class {{strategy.name}}Strategy implements {{module.nameLower}}Strategy {
   async create(data: any): Promise<{{module.name}}> {
-    // TODO: 加上 {{description}} 相关逻辑
+    // TODO: 加上 {{strategy.description}} 相关逻辑
     return {{module.name}}.create({
       ...data,
-      type: '{{nameLower}}',
+      type: '{{strategy.name}}',
     });
   }
 }

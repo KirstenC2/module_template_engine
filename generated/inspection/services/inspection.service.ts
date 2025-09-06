@@ -3,12 +3,11 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Inspection } from '../models/inspection.model';
 import { InspectionRepository } from '../repositorys/inspection.repository';
 
-
 @Injectable()
 export class InspectionService {
   constructor(
     private readonly inspectionRepository: InspectionRepository
-  ) {}
+      ) {}
 
   async create(data: any): Promise<Inspection> {
     return this.inspectionRepository.create(data);

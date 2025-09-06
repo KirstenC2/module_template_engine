@@ -128,13 +128,31 @@ export class TemplateEngine {
   render(category: string, templateName: string, data: any): string {
     const categoryMap = this.templatesByCategory.get(category);
     if (!categoryMap) throw new Error(`模板分类 ${category} 不存在`);
+    
+    // Get the template first
     const template = categoryMap.get(templateName);
     if (!template) throw new Error(`模板 ${category}/${templateName} 未加载`);
 
-    return template(data);
+    // Prepare the template data with proper strategies handling
+    const templateData = {
+      ...data,
+      // Ensure strategies is alway s an array for the template
+      strategies: data.strategies || [],
+      // Add helper flags for templates
+      hasStrategies: data.strategies && data.strategies.length > 0
+    };
+
+    // Debug logging
+    if (templateData.hasStrategies) {
+      console.log(`🔄 Processing template '${templateName}' with ${templateData.strategies.length} strategies`);
+      // templateData.strategies.forEach((strategy: any) => {
+      //   console.log(`  - ${strategy.name}: ${strategy.description}`);
+      //   strategy.name = strategy.name.replace(/[-_]/g, '');
+      // });
+    }
+
+    return template(templateData);
   }
-
-
 
   // ======================
   // 生成文件
@@ -151,6 +169,8 @@ export class TemplateEngine {
     }
   }
 
+
+  
 
   // ======================
   // 重新加載模板

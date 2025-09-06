@@ -9,6 +9,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 interface StrategyConfig {
   name: string;
+  filename: string;
   description?: string;
 }
 // 配置类型定义
@@ -89,13 +90,55 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
     const outputDir = path.join(process.cwd(), 'generated', moduleNameLower);
 
     // 准备模板数据
+    // const templateData = {
+    //   module: {
+    //     ...moduleConfig,
+    //     nameLower: moduleNameLower,
+    //     tableName: moduleConfig.tableName || `${moduleNameLower}s`,
+    //     strategies: moduleConfig.strategies?.map(strategy => ({
+    //       name: strategy.name,
+    //       nameLower: strategy.name.toLowerCase(),
+    //       safeName: strategy.name.replace(/[-_]/g, ''),
+    //       safeNameLower: strategy.name.toLowerCase().replace(/[-_]/g, '')
+    //     })) || [],
+    //     hasStrategies: moduleConfig.strategies && moduleConfig.strategies.length > 0
+    //   }
+    // };
+
+    const strategies = (moduleConfig.strategies || []).map(strategy => {
+      // Convert YAML name to camelCase for variable names
+      const nameParts = strategy.name.split(/[-_]/g);
+      const camelCaseVar = nameParts
+        .map((part, i) => i === 0 
+          ? part.charAt(0).toLowerCase() + part.slice(1) 
+          : part.charAt(0).toUpperCase() + part.slice(1))
+        .join('') + 'Strategy';
+    
+      // Convert YAML name to PascalCase for class names
+      const pascalCaseClass = nameParts
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('') + 'Strategy';
+    
+      return {
+        ...strategy,
+        filename: strategy.name,
+        nameLower: camelCaseVar,   // for constructor variable
+        className: pascalCaseClass // for import & type
+      };
+    });
+    
     const templateData = {
       module: {
         ...moduleConfig,
-        nameLower: moduleNameLower,
-        tableName: moduleConfig.tableName || `${moduleNameLower}s`
+        nameLower: moduleConfig.name.toLowerCase(),
+        tableName: moduleConfig.tableName || `${moduleConfig.name.toLowerCase()}s`,
+        strategies,
+        hasStrategies: strategies.length > 0
       }
     };
+    
+
+    
 
     Logger.info(`模块名称: ${moduleName}`);
     Logger.info(`数据表名: ${templateData.module.tableName}`);
@@ -159,7 +202,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
           // 生成每個策略
           moduleConfig.strategies.forEach(strategy => {
             if (engine.hasTemplate('strategies', 'strategy')) {
-              const strategyPath = path.join(strategiesDir, `${strategy.name.toLowerCase()}.strategy.ts`);
+              const strategyPath = path.join(strategiesDir, `${strategy.filename.toLowerCase()}.strategy.ts`);
               const strategyData = { ...templateData, strategy };
               engine.generateFile(strategyPath, 'strategies', 'strategy', strategyData);
             }

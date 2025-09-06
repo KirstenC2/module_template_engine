@@ -2,16 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { {{module.name}} } from '../models/{{module.nameLower}}.model';
 import { {{module.name}}Repository } from '../repositorys/{{module.nameLower}}.repository';
-
+{{#if strategyFactoryExists}}
+import { {{module.name}}StrategyFactory } from '../strategies/{{module.nameLower}}-strategy.factory';
+{{/if}}
 
 @Injectable()
 export class {{module.name}}Service {
   constructor(
     private readonly {{module.nameLower}}Repository: {{module.name}}Repository
+    {{#if strategyFactoryExists}},
+    private readonly strategyFactory: {{module.name}}StrategyFactory
+    {{/if}}
   ) {}
 
   async create(data: any): Promise<{{module.name}}> {
+    {{#if strategyFactoryExists}}
+    // 使用策略工廠處理不同 type
+    const strategy = this.strategyFactory.getStrategy(data.type);
+    return strategy.create(data);
+    {{else}}
     return this.{{module.nameLower}}Repository.create(data);
+    {{/if}}
   }
 
   async findAll(): Promise<{{module.name}}[]> {
