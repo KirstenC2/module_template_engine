@@ -17,28 +17,13 @@ export class Inspection extends Model<Inspection> {
 
 
 
-  @Column({type: DataType.STRING, allowNull: true, field: 'description'})
-  declare description: string;
-
-
-
-  @Column({type: DataType.STRING, field: 'inspector'})
-  declare inspector: string;
-
-
-
   @Column({type: DataType.DATE, field: 'inspection_date'})
-  declare inspection_date: any;
+  declare inspection_date: Date;
 
 
 
-  @Column({type: DataType.STRING, values: ['pending', 'in_progress', 'completed', 'cancelled'], field: 'status'})
+  @Column({type: DataType.STRING, values: ['pending', 'in_progress', 'completed'], field: 'status'})
   declare status: string;
-
-
-
-  @Column({type: DataType.STRING, allowNull: true, field: 'result'})
-  declare result: string;
 
 
 

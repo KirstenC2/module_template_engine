@@ -1,0 +1,15 @@
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Module } from '@nestjs/common';
+import { sequelizeConfig } from './config/sequelize.config';
+import { InspectionModule } from '../inspection/modules/inspection.module';
+@Module({
+  imports: [
+    SequelizeModule.forRoot({
+      ...sequelizeConfig,
+      autoLoadModels: true, // ✅ allowed here
+      synchronize: true,    // ✅ auto create tables
+    }),
+    InspectionModule,
+  ],
+})
+export class DatabaseModule {}

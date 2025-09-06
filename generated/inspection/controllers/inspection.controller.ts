@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { InspectionService } from './inspection.service';
+import { InspectionService } from '../services/inspection.service';
 
 @Controller('inspection')
 export class InspectionController {

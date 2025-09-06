@@ -1,0 +1,24 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { {{module.name}} } from '../models/{{module.nameLower}}.model';
+
+
+@Injectable()
+export class {{module.name}}Repository {
+  constructor(
+    @InjectModel({{module.name}})
+    private readonly {{module.nameLower}}Model: typeof {{module.name}}
+  ) {}
+
+  async create(data: any): Promise<{{module.name}}> {
+    return this.{{module.nameLower}}Model.create(data);
+  }
+
+  async findAll(): Promise<{{module.name}}[]> {
+    return this.{{module.nameLower}}Model.findAll();
+  }
+
+  async findOne(id: number): Promise<{{module.name}} | null> {
+    return this.{{module.nameLower}}Model.findOne({ where: { id } });
+  }
+}

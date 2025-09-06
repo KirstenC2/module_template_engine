@@ -1,0 +1,8 @@
+module:
+  name: "Database"
+  description: "数据库模块"
+  fields:
+    - name: "id"
+      type: "number"
+      primary_key: true
+  generate_service: true

@@ -1,0 +1,25 @@
+import { Injectable } from '@nestjs/common';
+{{#each strategies}}
+import { {{name}}Strategy } from './{{nameLower}}.strategy';
+{{/each}}
+import { {{module.nameLower}}Strategy } from './{{module.nameLower}}-strategy.interface';
+
+@Injectable()
+export class {{module.name}}StrategyFactory {
+  constructor(
+    {{#each strategies}}
+    private readonly {{nameLower}}Strategy: {{name}}Strategy,
+    {{/each}}
+  ) {}
+
+  getStrategy(type: string): {{module.nameLower}}Strategy {
+    switch (type) {
+      {{#each strategies}}
+      case '{{nameLower}}':
+        return this.{{nameLower}}Strategy;
+      {{/each}}
+      default:
+        throw new Error(`未知的巡检类型: ${type}`);
+    }
+  }
+}

@@ -1,0 +1,6 @@
+import { {{module.name}} } from '../models/{{module.nameLower}}.model';
+
+export interface {{module.nameLower}}Strategy {
+  create(data: any): Promise<{{module.name}}>;
+  validate?(data: any): boolean;
+}

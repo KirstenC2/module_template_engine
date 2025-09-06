@@ -3,92 +3,106 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { FileUtil } from '../utils/file.util';
 
-// 注册一些常用的辅助函数
+// ======================
+// Handlebars Helpers
+// ======================
 handlebars.registerHelper('toLowerCase', (str: string) => str.toLowerCase());
 handlebars.registerHelper('toUpperCase', (str: string) => str.toUpperCase());
 handlebars.registerHelper('eq', (a: any, b: any) => a === b);
 
-// 新增：數據類型映射
+// Sequelize 数据类型映射
 handlebars.registerHelper('toSequelizeType', (type: string) => {
-    const map: Record<string, string> = {
-      int: 'INTEGER',
-      integer: 'INTEGER',
-      string: 'STRING',
-      str: 'STRING',
-      text: 'TEXT',
-      boolean: 'BOOLEAN',
-      bool: 'BOOLEAN',
-      datetime: 'DATE',
-      date: 'DATE'
-    };
-    return map[type.toLowerCase()] || 'STRING';
-  });
-  
-  
-
-// 新增：轉換為 TypeScript 類型
-handlebars.registerHelper('toTsType', (type: string) => {
-  const typeMap: { [key: string]: string } = {
-    'int': 'number',
-    'integer': 'number',
-    'string': 'string',
-    'str': 'string',
-    'text': 'string',
-    'datetime': 'Date',
-    'date': 'Date',
-    'boolean': 'boolean',
-    'bool': 'boolean'
+  const map: Record<string, string> = {
+    int: 'INTEGER',
+    integer: 'INTEGER',
+    string: 'STRING',
+    str: 'STRING',
+    text: 'TEXT',
+    boolean: 'BOOLEAN',
+    bool: 'BOOLEAN',
+    datetime: 'DATE',
+    date: 'DATE'
   };
-  return typeMap[type] || 'any';
+  return map[type.toLowerCase()] || 'STRING';
 });
 
+// TypeScript 类型映射
+handlebars.registerHelper('toTsType', (type: string) => {
+  const typeMap: { [key: string]: string } = {
+    int: 'number',
+    integer: 'number',
+    string: 'string',
+    str: 'string',
+    text: 'string',
+    datetime: 'Date',
+    date: 'Date',
+    boolean: 'boolean',
+    bool: 'boolean'
+  };
+  return typeMap[type.toLowerCase()] || 'any';
+});
 
+// ======================
+// TemplateEngine
+// ======================
 export class TemplateEngine {
-  private templates: Map<string, handlebars.TemplateDelegate> = new Map();
+  private templatesByCategory: Map<string, Map<string, handlebars.TemplateDelegate>> = new Map();
   private templateDir: string;
 
-  constructor() {
-    // 使用正確的路徑：從項目根目錄開始
-    this.templateDir = path.join(process.cwd(), 'templates');
+  constructor(templateDir?: string) {
+    // 可以自定義模板目錄，否則默認使用項目根 templates 文件夾
+    this.templateDir = templateDir || path.join(process.cwd(), 'templates');
     console.log('📁 模板目录:', this.templateDir);
   }
 
-  
+  // ======================
+  // 掃描模板目錄
+  // ======================
+  private scanDirForHbs(dirPath: string): string[] {
+    let results: string[] = [];
+    if (!fs.existsSync(dirPath)) return results;
 
-  loadAllTemplates(): boolean {
-    console.log('🔄 加载模板文件...');
-    
-    // 定義模板文件的路徑映射
-    const templateMap = {
-      module: 'module/module.hbs',
-      model: 'model/model.hbs',
-      dto: 'dto/dto.hbs',
-      service: 'service/service.hbs',
-      controller: 'controller/controller.hbs'
-    };
-
-    Object.entries(templateMap).forEach(([templateName, templatePath]) => {
-      const fullTemplatePath = path.join(this.templateDir, templatePath);
-      console.log(`  正在加载: ${templatePath}`);
-      
-      if (FileUtil.fileExists(fullTemplatePath)) {
-        try {
-          const templateContent = FileUtil.readFile(fullTemplatePath);
-          const template = handlebars.compile(templateContent);
-          this.templates.set(templateName, template);
-          console.log(`  ✅ 加载成功: ${templateName}`);
-        } catch (error) {
-          console.error(`  ❌ 加载失败 ${templateName}:`, error.message);
-        }
-      } else {
-        console.error(`  ❌ 文件不存在: ${fullTemplatePath}`);
+    const items = fs.readdirSync(dirPath);
+    items.forEach(item => {
+      const fullPath = path.join(dirPath, item);
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        results = results.concat(this.scanDirForHbs(fullPath));
+      } else if (stat.isFile() && item.endsWith('.hbs')) {
+        results.push(fullPath);
       }
     });
 
-    // 檢查加載結果
-    const loadedTemplates = Array.from(this.templates.keys());
-    if (loadedTemplates.length > 0) {
-      console.log(`✅ 成功加载 ${loadedTemplates.length} 个模板:`, loadedTemplates.join(', '));
+    return results;
+  }
+
+  // ======================
+  // 加載模板
+  // ======================
+  loadAllTemplates(): boolean {
+    console.log('🔄 加载模板文件...');
+    this.templatesByCategory.clear();
+
+    const hbsFiles = this.scanDirForHbs(this.templateDir);
+
+    hbsFiles.forEach(filePath => {
+      const relativePath = path.relative(this.templateDir, filePath);
+      const parts = relativePath.split(path.sep);
+      const category = parts.length > 1 ? parts[0] : 'default';
+      const name = parts[parts.length - 1].replace(/\.hbs$/, '');
+      const templateContent = fs.readFileSync(filePath, 'utf-8');
+      const template = handlebars.compile(templateContent);
+
+      if (!this.templatesByCategory.has(category)) this.templatesByCategory.set(category, new Map());
+      this.templatesByCategory.get(category)!.set(name, template);
+
+      console.log(`✅ 加载模板: ${category}/${name}`);
+    });
+
+    const totalTemplates = Array.from(this.templatesByCategory.values())
+                                .reduce((acc, map) => acc + map.size, 0);
+    if (totalTemplates > 0) {
+      console.log(`✅ 成功加载 ${totalTemplates} 个模板`);
       return true;
     } else {
       console.error('❌ 没有加载任何模板文件！');
@@ -97,70 +111,97 @@ export class TemplateEngine {
     }
   }
 
-  private showAvailableTemplates(): void {
-    console.log('🔍 扫描模板目录结构...');
-    this.scanDir(this.templateDir, 0);
+  // ======================
+  // 列出模板
+  // ======================
+  listTemplates(category?: string): string[] {
+    if (category) {
+      return Array.from(this.templatesByCategory.get(category)?.keys() || []);
+    }
+    return Array.from(this.templatesByCategory.entries())
+                .flatMap(([cat, map]) => Array.from(map.keys()).map(name => `${cat}/${name}`));
   }
 
-  private scanDir(dirPath: string, depth: number): void {
-    try {
-      if (!fs.existsSync(dirPath)) {
-        console.log(`❌ 目录不存在: ${dirPath}`);
-        return;
-      }
+  // ======================
+  // 渲染模板
+  // ======================
+  render(category: string, templateName: string, data: any): string {
+    const categoryMap = this.templatesByCategory.get(category);
+    if (!categoryMap) throw new Error(`模板分类 ${category} 不存在`);
+    const template = categoryMap.get(templateName);
+    if (!template) throw new Error(`模板 ${category}/${templateName} 未加载`);
 
-      const items = fs.readdirSync(dirPath);
-      const indent = '  '.repeat(depth);
-      
-      if (items.length === 0) {
-        console.log(`${indent}📁 (空目录)`);
-        return;
-      }
-
-      items.forEach(item => {
-        const fullPath = path.join(dirPath, item);
-        const stat = fs.statSync(fullPath);
-        
-        if (stat.isDirectory()) {
-          console.log(`${indent}📁 ${item}/`);
-          this.scanDir(fullPath, depth + 1);
-        } else if (stat.isFile() && item.endsWith('.hbs')) {
-          console.log(`${indent}📄 ${item} (找到模板!)`);
-        } else if (stat.isFile()) {
-          console.log(`${indent}📄 ${item}`);
-        }
-      });
-    } catch (error) {
-      console.error(`无法扫描目录 ${dirPath}:`, error.message);
-    }
-  }
-
-  render(templateName: string, data: any): string {
-    const template = this.templates.get(templateName);
-    if (!template) {
-      throw new Error(`模板 ${templateName} 未加载，请检查模板文件是否存在`);
-    }
     return template(data);
   }
 
-  generateFile(outputPath: string, templateName: string, data: any): boolean {
+
+
+  // ======================
+  // 生成文件
+  // ======================
+  generateFile(outputPath: string, category: string, templateName: string, data: any): boolean {
     try {
-      if (!this.templates.has(templateName)) {
-        throw new Error(`模板 ${templateName} 未加载`);
-      }
-      
-      const content = this.render(templateName, data);
+      const content = this.render(category, templateName, data);
       FileUtil.writeFile(outputPath, content);
-      console.log(`✅ 生成  文件: ${outputPath}`);
+      console.log(`✅ 生成文件: ${outputPath}`);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ 生成文件失败 ${outputPath}:`, error.message);
       return false;
     }
   }
 
-  // 检查模板是否已加载
-  hasTemplate(templateName: string): boolean {
-    return this.templates.has(templateName);
+
+  // ======================
+  // 重新加載模板
+  // ======================
+  reloadTemplates() {
+    console.log('🔄 重新加載模板...');
+    return this.loadAllTemplates();
+  }
+
+  // ======================
+  // 顯示模板目錄
+  // ======================
+  private showAvailableTemplates(): void {
+    console.log('🔍 模板目录结构:');
+    this.scanDir(this.templateDir, 0);
+  }
+
+  private scanDir(dirPath: string, depth: number): void {
+    try {
+      if (!fs.existsSync(dirPath)) return;
+
+      const items = fs.readdirSync(dirPath);
+      const indent = '  '.repeat(depth);
+      
+      items.forEach(item => {
+        const fullPath = path.join(dirPath, item);
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+          console.log(`${indent}📁 ${item}/`);
+          this.scanDir(fullPath, depth + 1);
+        } else if (stat.isFile() && item.endsWith('.hbs')) {
+          console.log(`${indent}📄 ${item} (模板)`);
+        } else if (stat.isFile()) {
+          console.log(`${indent}📄 ${item}`);
+        }
+      });
+
+      if (items.length === 0) {
+        console.log(`${indent}📁 (空目录)`);
+      }
+
+    } catch (error: any) {
+      console.error(`无法扫描目录 ${dirPath}:`, error.message);
+    }
+  }
+
+  // ======================
+  // 檢查模板是否已加載
+  // ======================
+  hasTemplate(category: string, templateName: string): boolean {
+    return this.templatesByCategory.get(category)?.has(templateName) || false;
   }
 }

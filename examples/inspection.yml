@@ -12,23 +12,18 @@ module:
       type: "string"
       required: true
       max_length: 100
-    - name: "description"
-      type: "string"
-      required: false
-      max_length: 500
-    - name: "inspector"
-      type: "string"
-      required: true
-      max_length: 50
     - name: "inspection_date"
       type: "Date"
       required: true
     - name: "status"
       type: "string"
       required: true
-      enum: ["pending", "in_progress", "completed", "cancelled"]
-    - name: "result"
-      type: "string"
-      required: false
-      max_length: 1000
+      enum: ["pending", "in_progress", "completed"]
   generate_service: true
+  strategies:
+    - name: "Safety-Inspection"
+      description: "安全巡检"
+    - name: "Equipment-Inspection"
+      description: "设备巡检"
+    - name: "Quality-Inspection"
+      description: "质量巡检"

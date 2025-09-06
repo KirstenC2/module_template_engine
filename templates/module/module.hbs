@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { {{module.name}} } from './{{module.nameLower}}.model';
-import { {{module.name}}Service } from './{{module.nameLower}}.service';
-import { {{module.name}}Controller } from './{{module.nameLower}}.controller';
+import { {{module.name}} } from '../models/{{module.nameLower}}.model';
+import { {{module.name}}Service } from '../services/{{module.nameLower}}.service';
+import { {{module.name}}Controller } from '../controllers/{{module.nameLower}}.controller';
+import { {{module.name}}Repository } from '../repositorys/{{module.nameLower}}.repository';
 
 @Module({
   imports: [SequelizeModule.forFeature([{{module.name}}])],
-  providers: [{{module.name}}Service],
+  providers: [{{module.name}}Service, {{module.name}}Repository],
   controllers: [{{module.name}}Controller],
 })
 export class {{module.name}}Module {}

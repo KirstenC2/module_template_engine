@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Inspection } from './inspection.model';
+import { Inspection } from '../models/inspection.model';
+
 
 @Injectable()
-export class InspectionService {
+export class InspectionRepository {
   constructor(
     @InjectModel(Inspection)
     private readonly inspectionModel: typeof Inspection
@@ -18,6 +19,6 @@ export class InspectionService {
   }
 
   async findOne(id: number): Promise<Inspection | null> {
-    return this.inspectionModel.findByPk(id);
+    return this.inspectionModel.findOne({ where: { id } });
   }
 }
