@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { SafetyInspectionStrategy } from './safetyInspectionStrategy.strategy';
-import { EquipmentInspectionStrategy } from './equipmentInspectionStrategy.strategy';
-import { QualityInspectionStrategy } from './qualityInspectionStrategy.strategy';
+import { SafetyInspectionStrategy } from './safety-inspection.strategy';
+import { EquipmentInspectionStrategy } from './equipment-inspection.strategy';
+import { QualityInspectionStrategy } from './quality-inspection.strategy';
+import { InspectionStrategy } from './inspection-strategy.interface';
 
 @Injectable()
 export class InspectionStrategyFactory {
@@ -11,7 +12,7 @@ export class InspectionStrategyFactory {
     private readonly qualityInspectionStrategy: QualityInspectionStrategy,
   ) {}
 
-  getStrategy(type: string): inspectionStrategy {
+  getStrategy(type: string): InspectionStrategy {
     switch (type) {
       case 'SafetyInspection':
         return this.safetyInspectionStrategy;

@@ -1,6 +1,6 @@
 import { Inspection } from '../models/inspection.model';
 
-export interface inspectionStrategy {
+export interface InspectionStrategy {
   create(data: any): Promise<Inspection>;
   validate?(data: any): boolean;
 }

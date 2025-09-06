@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 {{#each module.strategies}}
-import { {{className}} } from './{{nameLower}}.strategy';
+import { {{className}} } from './{{filename}}.strategy';
 {{/each}}
+import { {{module.name}}Strategy } from './{{module.nameLower}}-strategy.interface';
 
 @Injectable()
 export class {{module.name}}StrategyFactory {
@@ -11,7 +12,7 @@ export class {{module.name}}StrategyFactory {
     {{/each}}
   ) {}
 
-  getStrategy(type: string): {{module.nameLower}}Strategy {
+  getStrategy(type: string): {{module.name}}Strategy {
     switch (type) {
       {{#each module.strategies}}
       case '{{name}}':

@@ -121,7 +121,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
     
       return {
         ...strategy,
-        filename: strategy.name,
+        filename: strategy.filename.toLowerCase(),
         nameLower: camelCaseVar,   // for constructor variable
         className: pascalCaseClass // for import & type
       };
