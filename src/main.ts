@@ -379,6 +379,7 @@ import * as fs from 'fs';
 import { TemplateEngine } from './engines/template.engine';
 import { FileUtil } from './utils/file.util';
 import { Logger } from './utils/logger.util';
+import { template } from 'handlebars';
 
 // 配置类型定义
 interface FieldConfig {
@@ -490,7 +491,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         return;
       }
 
-      const outputPath = path.join(outputDir, file.filename);
+      const outputPath = path.join(outputDir+'/'+file.template+'/'+file.filename);
       const success = engine.generateFile(outputPath, file.template, templateData);
       if (success) successCount++;
     });
