@@ -1,23 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+{{#if module.hasRepository}}
 import { {{module.name}} } from '../models/{{module.nameLower}}.model';
 import { {{module.name}}Repository } from '../repositorys/{{module.nameLower}}.repository';
-{{#if strategyFactoryExists}}
+{{/if}}
+{{#if module.hasStrategies}}
 import { {{module.name}}StrategyFactory } from '../strategies/{{module.nameLower}}-strategy.factory';
 {{/if}}
 
 @Injectable()
 export class {{module.name}}Service {
   constructor(
-    private readonly {{module.nameLower}}Repository: {{module.name}}Repository
-    {{#if strategyFactoryExists}},
+    {{#if module.hasStrategies}}
     private readonly strategyFactory: {{module.name}}StrategyFactory
     {{/if}}
+    {{#if module.hasRepository}}
+    {{#if module.hasStrategies}}, {{/if}}
+    private readonly {{module.nameLower}}Repository: {{module.name}}Repository
+    {{/if}}
+
   ) {}
 
-  async create(data: any): Promise<{{module.name}}> {
-    {{#if strategyFactoryExists}}
-    // 使用策略工廠處理不同 type
+  async create(data: any) {
+    {{#if module.hasStrategies}}
     const strategy = this.strategyFactory.getStrategy(data.type);
     return strategy.create(data);
     {{else}}
@@ -25,11 +29,19 @@ export class {{module.name}}Service {
     {{/if}}
   }
 
-  async findAll(): Promise<{{module.name}}[]> {
+  async findAll(){
+    {{#if module.hasRepository}}
     return this.{{module.nameLower}}Repository.findAll();
+    {{else}}
+    throw new Error('findAll not supported (no repository)');
+    {{/if}}
   }
 
-  async findOne(id: number): Promise<{{module.name}} | null> {
+  async findOne(id: number){
+    {{#if module.hasRepository}}
     return this.{{module.nameLower}}Repository.findOne(id);
+    {{else}}
+    throw new Error('findOne not supported (no repository)');
+    {{/if}}
   }
 }

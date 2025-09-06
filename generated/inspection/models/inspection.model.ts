@@ -17,6 +17,11 @@ export class Inspection extends Model<Inspection> {
 
 
 
+  @Column({type: DataType.STRING, values: ['SafetyInspection', 'EquipmentInspection', 'QualityInspection'], field: 'type'})
+  declare type: string;
+
+
+
   @Column({type: DataType.DATE, field: 'inspection_date'})
   declare inspection_date: Date;
 

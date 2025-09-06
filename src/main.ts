@@ -126,6 +126,11 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         className: pascalCaseClass // for import & type
       };
     });
+
+    let hasRepository = true;
+    if(moduleConfig.strategies && moduleConfig.strategies.length > 0){
+      hasRepository = false;
+    }
     
     const templateData = {
       module: {
@@ -133,7 +138,8 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         nameLower: moduleConfig.name.toLowerCase(),
         tableName: moduleConfig.tableName || `${moduleConfig.name.toLowerCase()}s`,
         strategies,
-        hasStrategies: strategies.length > 0
+        hasStrategies: strategies.length > 0,
+        hasRepository,
       }
     };
     

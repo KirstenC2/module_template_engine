@@ -4,10 +4,25 @@ import { {{module.name}} } from '../models/{{module.nameLower}}.model';
 import { {{module.name}}Service } from '../services/{{module.nameLower}}.service';
 import { {{module.name}}Controller } from '../controllers/{{module.nameLower}}.controller';
 import { {{module.name}}Repository } from '../repositorys/{{module.nameLower}}.repository';
+{{#if module.hasStrategies}}
+import { {{module.name}}StrategyFactory } from '../strategies/{{module.nameLower}}-strategy.factory';
+{{#each module.strategies}}
+import { {{className}} } from '../strategies/{{filename}}.strategy';
+{{/each}}
+{{/if}}
 
 @Module({
   imports: [SequelizeModule.forFeature([{{module.name}}])],
-  providers: [{{module.name}}Service, {{module.name}}Repository],
+  providers: [
+    {{module.name}}Service,
+    {{module.name}}Repository
+    {{#if module.hasStrategies}}
+      , {{module.name}}StrategyFactory
+      {{#each module.strategies}}
+        , {{this.className}}
+      {{/each}}
+    {{/if}}
+  ],
   controllers: [{{module.name}}Controller],
 })
 export class {{module.name}}Module {}

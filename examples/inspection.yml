@@ -12,6 +12,10 @@ module:
       type: "string"
       required: true
       max_length: 100
+    - name: "type"
+      type: "string"
+      required: true
+      enum: ["SafetyInspection", "EquipmentInspection", "QualityInspection"]
     - name: "inspection_date"
       type: "Date"
       required: true
@@ -20,6 +24,7 @@ module:
       required: true
       enum: ["pending", "in_progress", "completed"]
   generate_service: true
+  repository: false
   strategies:
     - filename: "Safety-Inspection"
       name: "SafetyInspection"

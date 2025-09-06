@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { Inspection } from '../models/inspection.model';
-import { InspectionRepository } from '../repositorys/inspection.repository';
+import { InspectionStrategyFactory } from '../strategies/inspection-strategy.factory';
 
 @Injectable()
 export class InspectionService {
   constructor(
-    private readonly inspectionRepository: InspectionRepository
-      ) {}
+    private readonly strategyFactory: InspectionStrategyFactory
 
-  async create(data: any): Promise<Inspection> {
-    return this.inspectionRepository.create(data);
+  ) {}
+
+  async create(data: any) {
+    const strategy = this.strategyFactory.getStrategy(data.type);
+    return strategy.create(data);
   }
 
-  async findAll(): Promise<Inspection[]> {
-    return this.inspectionRepository.findAll();
+  async findAll(){
+    throw new Error('findAll not supported (no repository)');
   }
 
-  async findOne(id: number): Promise<Inspection | null> {
-    return this.inspectionRepository.findOne(id);
+  async findOne(id: number){
+    throw new Error('findOne not supported (no repository)');
   }
 }

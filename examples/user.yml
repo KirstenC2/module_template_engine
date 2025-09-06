@@ -23,3 +23,4 @@ module:
       required: true
       enum: ["admin", "user"]
   generate_service: true
+  repository: true
