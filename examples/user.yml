@@ -1,0 +1,25 @@
+module:
+  name: "User"
+  description: "用户模块"
+  fields:
+    - name: "id"
+      type: "number"
+      required: true
+      primary_key: true
+    - name: "username"
+      type: "string"
+      required: true
+      max_length: 100
+    - name: "password"
+      type: "string"
+      required: false
+      max_length: 500
+    - name: "email"
+      type: "string"
+      required: true
+      max_length: 50
+    - name: "role"
+      type: "string"
+      required: true
+      enum: ["admin", "user"]
+  generate_service: true

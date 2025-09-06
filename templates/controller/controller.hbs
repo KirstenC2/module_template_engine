@@ -1,0 +1,22 @@
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { {{module.name}}Service } from './{{module.nameLower}}.service';
+
+@Controller('{{module.nameLower}}')
+export class {{module.name}}Controller {
+  constructor(private readonly {{module.nameLower}}Service: {{module.name}}Service) {}
+
+  @Post()
+  create(@Body() createDto: any) {
+    return this.{{module.nameLower}}Service.create(createDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.{{module.nameLower}}Service.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.{{module.nameLower}}Service.findOne(+id);
+  }
+}

@@ -1,0 +1,15 @@
+export class Create{{module.name}}Dto {
+  {{#each module.fields}}
+  {{#unless primaryKey}}
+  {{name}}{{#unless required}}?{{/unless}}: {{type}};
+  {{/unless}}
+  {{/each}}
+}
+
+export class Update{{module.name}}Dto {
+  {{#each module.fields}}
+  {{#unless primaryKey}}
+  {{name}}?: {{type}};
+  {{/unless}}
+  {{/each}}
+}

@@ -1,0 +1,25 @@
+import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, CreatedAt, UpdatedAt } from 'sequelize-typescript';
+
+@Table({
+tableName: '{{module.tableName}}',
+timestamps: true,
+})
+export class {{module.name}} extends Model<{{module.name}}> {
+  {{#each module.fields}}
+  {{#if primary_key}}
+  @PrimaryKey
+  {{#if (eq type "int")}}@AutoIncrement{{/if}}
+  {{/if}}
+  @Column({type: DataType.{{toSequelizeType type}},{{#unless required}} allowNull: true,{{/unless}}{{#if enum}} values: [{{#each enum}}'{{this}}'{{#unless @last}}, {{/unless}}{{/each}}],{{/if}}{{#if primary_key}} primaryKey: true,{{/if}}{{#if (eq type "int")}} autoIncrement: {{#if primary_key}}true{{else}}false{{/if}},{{/if}} field: '{{name}}'})
+  declare {{name}}: {{toTsType type}};
+
+
+
+  {{/each}}
+
+  @CreatedAt
+  declare createdAt: Date;
+
+  @UpdatedAt
+  declare updatedAt: Date;
+  }
