@@ -13,3 +13,5 @@ export class UpdateInspectionDto {
   inspection_date?: Date;
   status?: string;
 }
+
+

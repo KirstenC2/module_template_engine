@@ -24,3 +24,9 @@ module:
       enum: ["admin", "user"]
   generate_service: true
   repository: true
+  response:
+    fields:
+      - id
+      - username
+      - email
+      - role

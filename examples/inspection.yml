@@ -35,3 +35,10 @@ module:
     - filename: "Quality-Inspection"
       name: "QualityInspection"
       description: "质量巡检"
+  response:
+    fields:
+      - title
+      - type
+      - inspection_date
+      - status
+    

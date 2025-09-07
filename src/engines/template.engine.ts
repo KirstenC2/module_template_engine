@@ -9,7 +9,17 @@ import { FileUtil } from '../utils/file.util';
 handlebars.registerHelper('toLowerCase', (str: string) => str.toLowerCase());
 handlebars.registerHelper('toUpperCase', (str: string) => str.toUpperCase());
 handlebars.registerHelper('eq', (a: any, b: any) => a === b);
-
+handlebars.registerHelper('neq', (a: any, b: any) => a !== b);
+handlebars.registerHelper('lookup', (key: string, obj: any) => obj[key]);
+handlebars.registerHelper('lookupType', (type: string) => {
+  switch(type) {
+    case 'number': return 'number';
+    case 'string': return 'string';
+    case 'boolean': return 'boolean';
+    case 'Date': return 'Date';
+    default: return 'any';
+  }
+});
 // Sequelize 数据类型映射
 handlebars.registerHelper('toSequelizeType', (type: string) => {
   const map: Record<string, string> = {
@@ -41,6 +51,17 @@ handlebars.registerHelper('toTsType', (type: string) => {
   };
   return typeMap[type.toLowerCase()] || 'any';
 });
+
+handlebars.registerHelper('lookupType', (type: string) => {
+  switch(type) {
+    case 'number': return 'number';
+    case 'string': return 'string';
+    case 'boolean': return 'boolean';
+    case 'Date': return 'Date';
+    default: return 'any';
+  }
+});
+
 
 // ======================
 // TemplateEngine

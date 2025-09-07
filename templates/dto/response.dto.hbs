@@ -1,0 +1,5 @@
+export class {{module.name}}ResponseDto {
+{{#each module.response.fields}}
+  readonly {{name}}: {{type}};
+{{/each}}
+}

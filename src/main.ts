@@ -29,6 +29,9 @@ interface ModuleConfig {
   fields: FieldConfig[];
   generate_service?: boolean;
   strategies?: StrategyConfig[];
+  response?: {
+    fields: string[];
+  };
 }
 
 /**
@@ -36,7 +39,7 @@ interface ModuleConfig {
  */
 function getAllConfigFiles(): string[] {
   const examplesDir = path.join(process.cwd(), 'examples');
-  
+
   if (!fs.existsSync(examplesDir)) {
     Logger.warning('examples 目录不存在');
     return [];
@@ -44,7 +47,7 @@ function getAllConfigFiles(): string[] {
 
   try {
     const files = fs.readdirSync(examplesDir);
-    const yamlFiles = files.filter(file => 
+    const yamlFiles = files.filter(file =>
       file.endsWith('.yml') || file.endsWith('.yaml')
     ).map(file => path.join(examplesDir, file));
 
@@ -109,16 +112,16 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
       // Convert YAML name to camelCase for variable names
       const nameParts = strategy.name.split(/[-_]/g);
       const camelCaseVar = nameParts
-        .map((part, i) => i === 0 
-          ? part.charAt(0).toLowerCase() + part.slice(1) 
+        .map((part, i) => i === 0
+          ? part.charAt(0).toLowerCase() + part.slice(1)
           : part.charAt(0).toUpperCase() + part.slice(1))
         .join('') + 'Strategy';
-    
+
       // Convert YAML name to PascalCase for class names
       const pascalCaseClass = nameParts
         .map(part => part.charAt(0).toUpperCase() + part.slice(1))
         .join('') + 'Strategy';
-    
+
       return {
         ...strategy,
         filename: strategy.filename.toLowerCase(),
@@ -128,10 +131,32 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
     });
 
     let hasRepository = true;
-    if(moduleConfig.strategies && moduleConfig.strategies.length > 0){
+    if (moduleConfig.strategies && moduleConfig.strategies.length > 0) {
       hasRepository = false;
     }
+
+    const responseFields = (moduleConfig.response?.fields || []).map(fieldName => {
+      const field = moduleConfig.fields.find(f => f.name === fieldName);
+      if (!field) return null;
+      return {
+        name: field.name,
+        type: (() => {
+          switch(field.type) {
+            case 'number': return 'number';
+            case 'string': return 'string';
+            case 'Date': return 'Date';
+            case 'boolean': return 'boolean';
+            default: return 'any';
+          }
+        })(),
+        readonly: true
+      };
+    }).filter(f => f !== null);
     
+
+
+
+
     const templateData = {
       module: {
         ...moduleConfig,
@@ -140,11 +165,15 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         strategies,
         hasStrategies: strategies.length > 0,
         hasRepository,
+        response: {
+          fields: responseFields,
+        }
       }
     };
-    
 
-    
+
+
+
 
     Logger.info(`模块名称: ${moduleName}`);
     Logger.info(`数据表名: ${templateData.module.tableName}`);
@@ -158,53 +187,54 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
       { template: 'module', filename: `${moduleNameLower}.module.ts`, description: 'NestJS模块文件' },
       { template: 'model', filename: `${moduleNameLower}.model.ts`, description: 'Sequelize模型文件' },
       { template: 'dto', filename: `${moduleNameLower}.dto.ts`, description: '数据传输对象文件' },
+      { template: 'response.dto', filename: `${moduleNameLower}.response.dto.ts`, description: '响应数据传输对象文件' },
       { template: 'service', filename: `${moduleNameLower}.service.ts`, description: '服务层文件' },
       { template: 'controller', filename: `${moduleNameLower}.controller.ts`, description: '控制器文件' },
       { template: 'repository', filename: `${moduleNameLower}.repository.ts`, description: '仓库层文件' },
       // { template: 'strategies', filename: `${moduleNameLower}.strategies.ts`, description: '策略文件' },
-      
+
     ];
 
     // 生成所有文件
     let successCount = 0;
-    
+
     filesToGenerate.forEach(file => {
 
       console.log(file.filename.includes('database'));
-      if(file.filename.includes('database')){
+      if (file.filename.includes('database')) {
         // const outputPath = path.join(outputDir+'/'+file.template+'s/'+file.filename);
         const generator = new DatabaseGenerator(engine);
         generator.generateDatabaseModule(config);
         successCount++;
-        
+
       }
-      
-      else{
-        if (!engine.hasTemplate(file.template,file.template)) {
+
+      else {
+        if (!engine.hasTemplate(file.template, file.template)) {
           Logger.warning(`跳过 ${file.description} (模板未加载: ${file.template})`);
           return;
         }
-  
-        const outputPath = path.join(outputDir+'/'+file.template+'s/'+file.filename);
+
+        const outputPath = path.join(outputDir + '/' + file.template + 's/' + file.filename);
         const success = engine.generateFile(outputPath, file.template, file.template, templateData);
         if (success) successCount++;
         // ---- 新增策略生成 ----
         if (moduleConfig.strategies && moduleConfig.strategies.length > 0) {
           const strategiesDir = path.join(outputDir, 'strategies');
           FileUtil.ensureDirectoryExists(strategiesDir);
-  
+
           // 生成 factory
           if (engine.hasTemplate('strategies', 'strategy-factory')) {
             const factoryPath = path.join(strategiesDir, `${moduleNameLower}-strategy.factory.ts`);
             engine.generateFile(factoryPath, 'strategies', 'strategy-factory', templateData);
           }
-  
+
           // 生成 interface
           if (engine.hasTemplate('strategies', 'strategy-interface')) {
             const interfacePath = path.join(strategiesDir, `${moduleNameLower}-strategy.interface.ts`);
             engine.generateFile(interfacePath, 'strategies', 'strategy-interface', templateData);
           }
-  
+
           // 生成每個策略
           moduleConfig.strategies.forEach(strategy => {
             if (engine.hasTemplate('strategies', 'strategy')) {
@@ -214,15 +244,30 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
             }
           });
         }
-        if (success) successCount++;
-  
+
+        if(moduleConfig.response){
+          const responseDir = path.join(outputDir, 'responses');
+          FileUtil.ensureDirectoryExists(responseDir);
+      
+          const responsePath = path.join(responseDir, `${moduleNameLower}.response.dto.ts`);
+      
+          if (engine.hasTemplate('dto', 'response.dto')) {
+              engine.generateFile(responsePath, 'dto', 'response.dto', templateData);
+              Logger.info(`✅ Response DTO generated at ${responsePath}`);
+          } else {
+              Logger.warning('⚠️ response.dto template not found.');
+          }
       }
-        
+      
+        if (success) successCount++;
+
+      }
+
 
 
     });
-    
-    
+
+
 
     // 显示生成结果
     if (successCount > 0) {
@@ -251,7 +296,7 @@ async function main() {
 
     // 1. 获取所有配置文件
     const configFiles = getAllConfigFiles();
-    
+
     if (configFiles.length === 0) {
       Logger.error('没有找到任何配置文件');
       Logger.info('请在 examples/ 目录下创建 .yml 或 .yaml 文件');
@@ -260,11 +305,11 @@ async function main() {
 
     // 2. 初始化模板引擎
     const engine = new TemplateEngine();
-    
+
     // 3. 加载所有模板文件
     Logger.info('-'.repeat(30));
     const templatesLoaded = engine.loadAllTemplates();
-    
+
     if (!templatesLoaded) {
       Logger.error('没有模板被加载，无法生成代码');
       return;
@@ -313,7 +358,7 @@ async function generateFromSpecificConfig(configPath: string): Promise<void> {
 
     const engine = new TemplateEngine();
     const templatesLoaded = engine.loadAllTemplates();
-    
+
     if (!templatesLoaded) {
       Logger.error('没有模板被加载，无法生成代码');
       return;
