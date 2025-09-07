@@ -58,6 +58,14 @@ interface ControllerConfig {
   methods: ControllerMethodConfig[];
 }
 
+interface RepositoryConfig {
+  methods: {
+    name: string;
+    params?: { name: string; type: string }[];
+    update?: string;
+  }[];
+}
+
 interface ModuleConfig {
   name: string;
   description?: string;
@@ -68,8 +76,10 @@ interface ModuleConfig {
 
   response?: ResponseConfig[]; // 👈 now an array
   update?: UpdateConfig[];
+
   service?: ServiceConfig;
   controllers?: ControllerConfig;
+  repository?: RepositoryConfig;
 }
 
 
@@ -237,16 +247,17 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         tableName: moduleConfig.tableName || `${moduleConfig.name.toLowerCase()}s`,
         strategies,
         hasStrategies: strategies.length > 0,
-        hasRepository,
+        hasRepository: moduleConfig.repository ? moduleConfig.repository.methods.length > 0 : false,
         responses,
         updates
       },
       controller: moduleConfig.controllers ? moduleConfig.controllers : null,
       service: moduleConfig.service ? moduleConfig.service : null,
+      repository: moduleConfig.repository ? moduleConfig.repository : null,
     };
 
 
-
+    
 
 
     Logger.info(`模块名称: ${moduleName}`);

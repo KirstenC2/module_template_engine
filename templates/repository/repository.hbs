@@ -1,24 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { {{module.name}} } from '../models/{{module.nameLower}}.model';
+{{#each module.updates}}
+import { {{name}} } from '../dtos/{{module_name}}.update.dto';
+{{/each}}
 
-
+{{#if module.repository}}
 @Injectable()
 export class {{module.name}}Repository {
   constructor(
     @InjectModel({{module.name}})
-    private readonly {{module.nameLower}}Model: typeof {{module.name}}
+    private readonly model: typeof {{module.name}}
   ) {}
 
-  async create(data: any): Promise<{{module.name}}> {
-    return this.{{module.nameLower}}Model.create(data);
-  }
+  {{#each module.repository.methods}}
+  {{this.name}}({{#if this.params}}{{#each this.params}}{{this.name}}: {{this.type}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}{{#if this.update}}{{#if this.params}}, {{/if}}updateDto: {{this.update}}{{/if}}) {
+    // TODO: implement repository method
 
-  async findAll(): Promise<{{module.name}}[]> {
-    return this.{{module.nameLower}}Model.findAll();
+    {{!-- Determine the model method to call --}}
+    {{#if this.action}}
+      {{! explicit action from YAML }}
+      {{~#if this.update~}}
+        return this.model.{{this.action}}(
+          updateDto,
+          { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
+        );
+      {{~else if this.params~}}
+        return this.model.{{this.action}}(
+          { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
+        );
+      {{~else~}}
+        return this.model.{{this.action}}();
+      {{~/if~}}
+    {{else}}
+      {{! fallback: use repository method name as model method }}
+      {{~#if this.update~}}
+        return this.model.{{this.name}}(
+          updateDto,
+          { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
+        );
+      {{~else if this.params~}}
+        return this.model.{{this.name}}(
+          { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
+        );
+      {{~else~}}
+        return this.model.{{this.name}}();
+      {{~/if~}}
+    {{/if}}
   }
-
-  async findOne(id: number): Promise<{{module.name}} | null> {
-    return this.{{module.nameLower}}Model.findOne({ where: { id } });
-  }
+  {{/each}}
 }
+{{/if}}

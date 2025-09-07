@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Inspection } from '../models/inspection.model';
+import { InspectionRepository } from '../repositorys/inspection.repository';
 import { InspectionStrategyFactory } from '../strategies/inspection-strategy.factory';
 
 import { InspectionResponseGeneralResponseDto } from '../dtos/inspection.response.dto';
@@ -10,6 +12,8 @@ import { UpdateInspectionDto } from '../dtos/inspection.update.dto';
 export class InspectionService {
   constructor(
     private readonly strategyFactory: InspectionStrategyFactory
+    , 
+    private readonly inspectionRepository: InspectionRepository
 
   ) {}
 

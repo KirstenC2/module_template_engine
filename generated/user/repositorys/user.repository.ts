@@ -1,24 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../models/user.model';
-
+import { UpdateUserEmailDto } from '../dtos/user.update.dto';
+import { UpdateUserProfileDto } from '../dtos/user.update.dto';
 
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectModel(User)
-    private readonly userModel: typeof User
+    private readonly model: typeof User
   ) {}
 
-  async create(data: any): Promise<User> {
-    return this.userModel.create(data);
-  }
+  findAll() {
+    // TODO: implement repository method
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
-  }
+return this.model.findAll();  }
+  findOneById(id: number) {
+    // TODO: implement repository method
 
-  async findOne(id: number): Promise<User | null> {
-    return this.userModel.findOne({ where: { id } });
-  }
+return this.model.findOne(
+          { where: { id } }
+        );  }
+  updateEmail(id: number, updateDto: UpdateUserEmailDto) {
+    // TODO: implement repository method
+
+return this.model.update(
+          updateDto,
+          { where: { id } }
+        );  }
+  updateProfile(id: number, updateDto: UpdateUserProfileDto) {
+    // TODO: implement repository method
+
+return this.model.update(
+          updateDto,
+          { where: { id } }
+        );  }
 }

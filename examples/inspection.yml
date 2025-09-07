@@ -24,7 +24,7 @@ module:
       required: true
       enum: ["pending", "in_progress", "completed"]
   generate_service: true
-  repository: false
+  generate_repository: true
   strategies:
     - filename: "Safety-Inspection"
       name: "SafetyInspection"
@@ -62,6 +62,7 @@ module:
       - name: "update"
         update: "UpdateInspectionDto"
         response: "InspectionResponseGeneralResponseDto"
+
   controllers:
     name: "InspectionController"
     base_path: "inspections"
@@ -85,4 +86,19 @@ module:
         service: "update"
         body: "UpdateInspectionDto"
         response: "InspectionResponseGeneralResponseDto"
-  
+
+  repository:
+    methods:
+      - name: "findAll"
+        action: "findAll"
+      - name: "findOneById"
+        action: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+      - name: "update"
+        action: "update"
+        params:
+          - name: "id"
+            type: "number"
+        update: "UpdateInspectionDto"

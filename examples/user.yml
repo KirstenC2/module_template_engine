@@ -24,8 +24,7 @@ module:
       enum: ["admin", "user"]
 
   generate_service: true
-  repository: true
-
+  generate_repository: true
   response:
     - name: "UserResponseGeneralResponseDto"
       fields:
@@ -37,7 +36,6 @@ module:
       fields:
         - id
         - username
-
   update:
     - name: "UpdateUserEmailDto"
       fields:
@@ -91,3 +89,24 @@ module:
         service: "updateProfile"
         body: "UpdateUserProfileDto"
         response: "UserResponseGeneralResponseDto"
+  repository:
+    methods:
+      - name: "findAll"
+        action: "findAll"
+      - name: "findOneById"
+        action: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+      - name: "updateEmail"
+        action: "update"
+        params:
+          - name: "id"
+            type: "number"
+        update: "UpdateUserEmailDto"
+      - name: "updateProfile"
+        action: "update"
+        params:
+          - name: "id"
+            type: "number"
+        update: "UpdateUserProfileDto"

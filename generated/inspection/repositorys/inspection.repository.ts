@@ -1,24 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Inspection } from '../models/inspection.model';
-
+import { UpdateInspectionDto } from '../dtos/inspection.update.dto';
 
 @Injectable()
 export class InspectionRepository {
   constructor(
     @InjectModel(Inspection)
-    private readonly inspectionModel: typeof Inspection
+    private readonly model: typeof Inspection
   ) {}
 
-  async create(data: any): Promise<Inspection> {
-    return this.inspectionModel.create(data);
-  }
+  findAll() {
+    // TODO: implement repository method
 
-  async findAll(): Promise<Inspection[]> {
-    return this.inspectionModel.findAll();
-  }
+return this.model.findAll();  }
+  findOneById(id: number) {
+    // TODO: implement repository method
 
-  async findOne(id: number): Promise<Inspection | null> {
-    return this.inspectionModel.findOne({ where: { id } });
-  }
+return this.model.findOne(
+          { where: { id } }
+        );  }
+  update(id: number, updateDto: UpdateInspectionDto) {
+    // TODO: implement repository method
+
+return this.model.update(
+          updateDto,
+          { where: { id } }
+        );  }
 }
