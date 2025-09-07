@@ -22,8 +22,10 @@ module:
       type: "string"
       required: true
       enum: ["admin", "user"]
+
   generate_service: true
   repository: true
+
   response:
     - name: "UserResponseGeneralResponseDto"
       fields:
@@ -35,15 +37,16 @@ module:
       fields:
         - id
         - username
+
   update:
     - name: "UpdateUserEmailDto"
       fields:
         - email
-
     - name: "UpdateUserProfileDto"
       fields:
         - username
         - role
+
   service:
     methods:
       - name: "findAll"
@@ -58,4 +61,33 @@ module:
         response: "UserInfoResponseDto"
       - name: "updateProfile"
         update: "UpdateUserProfileDto"
+        response: "UserResponseGeneralResponseDto"
+  controllers:
+    name: "UserController"
+    base_path: "users"
+    methods:
+      - name: "findAll"
+        http_method: "Get"
+        service: "findAll"
+        response: "UserResponseGeneralResponseDto"
+
+      - name: "findOne"
+        http_method: "Get"
+        route: ":id"
+        service: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "UserInfoResponseDto"
+
+      - name: "updateEmail"
+        http_method: "Patch"
+        service: "updateEmail"
+        body: "UpdateUserEmailDto"
+        response: "UserInfoResponseDto"
+
+      - name: "updateProfile"
+        http_method: "Patch"
+        service: "updateProfile"
+        body: "UpdateUserProfileDto"
         response: "UserResponseGeneralResponseDto"

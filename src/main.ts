@@ -42,6 +42,22 @@ interface ServiceConfig {
   }[];
 }
 
+interface ControllerMethodConfig {
+  name: string;
+  http_method: string;
+  route?: string;
+  service: string;
+  params?: { name: string; type: string }[];
+  body?: string;
+  response: string;
+}
+
+interface ControllerConfig {
+  name: string;
+  base_path: string;
+  methods: ControllerMethodConfig[];
+}
+
 interface ModuleConfig {
   name: string;
   description?: string;
@@ -53,6 +69,7 @@ interface ModuleConfig {
   response?: ResponseConfig[]; // 👈 now an array
   update?: UpdateConfig[];
   service?: ServiceConfig;
+  controllers?: ControllerConfig;
 }
 
 
@@ -212,6 +229,9 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
       };
     });
 
+    
+    
+
 
 
     const templateData = {
@@ -223,8 +243,10 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         hasStrategies: strategies.length > 0,
         hasRepository,
         responses,
-        updates,
-      }
+        updates
+      },
+      controller: moduleConfig.controllers ? moduleConfig.controllers : null,
+      service: moduleConfig.service ? moduleConfig.service : null,
     };
 
 
@@ -327,6 +349,20 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
             Logger.info(`✅ Update DTO generated at ${updatePath}`);
           } else {
             Logger.warning('⚠️ update.dto template not found.');
+          }
+        }
+
+        if (moduleConfig.controllers) {
+          const controllerDir = path.join(outputDir, 'controllers');
+          FileUtil.ensureDirectoryExists(controllerDir);
+
+          const controllerPath = path.join(controllerDir, `${moduleNameLower}.controller.ts`);
+
+          if (engine.hasTemplate('controller', 'controller')) {
+            engine.generateFile(controllerPath, 'controller', 'controller', templateData);
+            Logger.info(`✅ Controller generated at ${controllerPath}`);
+          } else {
+            Logger.warning('⚠️ controller template not found.');
           }
         }
 

@@ -63,6 +63,23 @@ handlebars.registerHelper('lookupType', (type: string) => {
 });
 
 
+handlebars.registerHelper('switch', function(value, options) {
+  this._switch_value_ = value;
+  const html = options.fn(this);
+  delete this._switch_value_;
+  return html;
+});
+
+handlebars.registerHelper('case', function(value, options) {
+  if (value === this._switch_value_) {
+    return options.fn(this);
+  }
+});
+
+handlebars.registerHelper('default', function(options) {
+  return options.fn(this);
+});
+
 // ======================
 // TemplateEngine
 // ======================

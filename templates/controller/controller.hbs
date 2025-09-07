@@ -1,22 +1,30 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Body, Param } from '@nestjs/common';
 import { {{module.name}}Service } from '../services/{{module.nameLower}}.service';
+{{#each module.responses}}
+import { {{name}} } from '../dtos/{{module_name}}.response.dto';
+{{/each}}
+{{#each module.updates}}
+import { {{name}} } from '../dtos/{{module_name}}.update.dto';
+{{/each}}
 
-@Controller('{{module.nameLower}}')
-export class {{module.name}}Controller {
-  constructor(private readonly {{module.nameLower}}Service: {{module.name}}Service) {}
+@Controller('{{module.controllers.base_path}}')
+export class {{module.controllers.name}}Controller {
+  constructor(private readonly service: {{module.name}}Service) {}
 
-  @Post()
-  create(@Body() createDto: any) {
-    return this.{{module.nameLower}}Service.create(createDto);
+  {{#each module.controllers.methods}}
+  @{{http_method}}('{{route}}')
+  {{name}}(
+    {{#if body}}
+    @Body() dto: {{body}}
+    {{/if}} 
+    {{#each params}}
+    {{#if ../body}}, {{/if}}@Param('{{this.name}}') {{this.name}}: {{this.type}}
+    {{/each}}
+  ) {
+    return this.service.{{service}}(
+      {{#if body}}dto{{/if}}
+      {{#each params}}{{#if @first}}{{else}}, {{/if}}{{this.name}}{{/each}}
+    );
   }
-
-  @Get()
-  findAll() {
-    return this.{{module.nameLower}}Service.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.{{module.nameLower}}Service.findOne(+id);
-  }
+  {{/each}}
 }

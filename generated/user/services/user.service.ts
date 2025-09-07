@@ -11,32 +11,32 @@ import { UpdateUserProfileDto } from '../dtos/user.update.dto';
 
 @Injectable()
 export class UserService {
-    constructor(
+  constructor(
+    
+    private readonly userRepository: UserRepository
 
-        private readonly userRepository: UserRepository
+  ) {}
 
-    ) { }
-
-    async findAll(
-    ): Promise<UserResponseGeneralResponseDto> {
-        throw new Error('findAll not supported');
-    }
-    async findOne(
-        id: number
-    ): Promise<UserInfoResponseDto> {
-        throw new Error('findOne not supported');
-    }
-    async updateEmail(
-        dto: UpdateUserEmailDto
-    ): Promise<UserInfoResponseDto> {
-        // TODO: implement updateEmail
-        return {} as UserInfoResponseDto;
-    }
-    async updateProfile(
-        dto: UpdateUserProfileDto
-    ): Promise<UserResponseGeneralResponseDto> {
-        // TODO: implement updateProfile
-        return {} as UserResponseGeneralResponseDto;
-    }
+  async findAll(
+  ): Promise<UserResponseGeneralResponseDto> {
+      throw new Error('findAll not supported');
+  }
+  async findOne(
+      id: number
+  ): Promise<UserInfoResponseDto> {
+      throw new Error('findOne not supported');
+  }
+  async updateEmail(
+      dto: UpdateUserEmailDto
+  ): Promise<UserInfoResponseDto> {
+      // TODO: implement updateEmail
+      return {} as UserInfoResponseDto;
+      }
+  async updateProfile(
+      dto: UpdateUserProfileDto
+  ): Promise<UserResponseGeneralResponseDto> {
+      // TODO: implement updateProfile
+      return {} as UserResponseGeneralResponseDto;
+      }
 
 }
