@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { InspectionStrategy } from './inspection-strategy.interface';
 import { SafetyInspectionStrategy } from './safety-inspection.strategy';
 import { EquipmentInspectionStrategy } from './equipment-inspection.strategy';
 import { QualityInspectionStrategy } from './quality-inspection.strategy';
-import { InspectionStrategy } from './inspection-strategy.interface';
 
 @Injectable()
 export class InspectionStrategyFactory {

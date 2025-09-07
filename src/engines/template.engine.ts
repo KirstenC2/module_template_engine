@@ -11,15 +11,10 @@ handlebars.registerHelper('toUpperCase', (str: string) => str.toUpperCase());
 handlebars.registerHelper('eq', (a: any, b: any) => a === b);
 handlebars.registerHelper('neq', (a: any, b: any) => a !== b);
 handlebars.registerHelper('lookup', (key: string, obj: any) => obj[key]);
-handlebars.registerHelper('lookupType', (type: string) => {
-  switch(type) {
-    case 'number': return 'number';
-    case 'string': return 'string';
-    case 'boolean': return 'boolean';
-    case 'Date': return 'Date';
-    default: return 'any';
-  }
+handlebars.registerHelper("lookupType", function (allFields, fieldName) {
+  return allFields[fieldName] || "any";
 });
+
 // Sequelize 数据类型映射
 handlebars.registerHelper('toSequelizeType', (type: string) => {
   const map: Record<string, string> = {

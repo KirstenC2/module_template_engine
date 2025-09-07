@@ -1,7 +1,9 @@
 export class UpdateUserEmailDto {
-  email?: any;
+  email?: string;
 }
 export class UpdateUserProfileDto {
-  username?: any;
-  role?: any;
+  username?: string;
+  role?: string;
 }
+
+

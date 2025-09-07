@@ -230,10 +230,6 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
     });
 
     
-    
-
-
-
     const templateData = {
       module: {
         ...moduleConfig,

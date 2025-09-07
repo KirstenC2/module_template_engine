@@ -1,7 +1,9 @@
-{{#each module.update}}
+{{#each module.updates}}
 export class {{this.name}} {
   {{#each this.fields}}
-  {{this}}?: {{lookupType ../module.fields this}};
+  {{this.name}}?: {{this.type}};
   {{/each}}
 }
 {{/each}}
+
+

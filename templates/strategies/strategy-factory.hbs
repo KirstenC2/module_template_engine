@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { {{module.name}}Strategy } from './{{module.nameLower}}-strategy.interface';
 {{#each module.strategies}}
 import { {{className}} } from './{{filename}}.strategy';
 {{/each}}
-import { {{module.name}}Strategy } from './{{module.nameLower}}-strategy.interface';
 
 @Injectable()
 export class {{module.name}}StrategyFactory {

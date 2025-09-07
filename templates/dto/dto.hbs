@@ -6,12 +6,5 @@ export class Create{{module.name}}Dto {
   {{/each}}
 }
 
-export class Update{{module.name}}Dto {
-  {{#each module.fields}}
-  {{#unless primaryKey}}
-  {{name}}?: {{type}};
-  {{/unless}}
-  {{/each}}
-}
 
 
