@@ -36,9 +36,10 @@ module:
       name: "QualityInspection"
       description: "质量巡检"
   response:
-    fields:
-      - title
-      - type
-      - inspection_date
-      - status
+    - name: "InspectionResponseGeneralResponseDto"
+      fields:
+        - title
+        - type
+        - inspection_date
+        - status
     

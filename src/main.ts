@@ -22,6 +22,11 @@ interface FieldConfig {
   enum?: string[];
 }
 
+interface ResponseConfig {
+  name: string;       // e.g. "UserInfoResponseDto"
+  fields: string[];   // e.g. ["id", "username"]
+}
+
 interface ModuleConfig {
   name: string;
   description?: string;
@@ -29,10 +34,11 @@ interface ModuleConfig {
   fields: FieldConfig[];
   generate_service?: boolean;
   strategies?: StrategyConfig[];
-  response?: {
-    fields: string[];
-  };
+
+  response?: ResponseConfig[]; // 👈 now an array
 }
+
+
 
 /**
  * 获取所有 YAML 配置文件
@@ -135,23 +141,30 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
       hasRepository = false;
     }
 
-    const responseFields = (moduleConfig.response?.fields || []).map(fieldName => {
-      const field = moduleConfig.fields.find(f => f.name === fieldName);
-      if (!field) return null;
+    const responses = (moduleConfig.response || []).map(resp => {
+      const responseFields = (resp.fields || []).map(fieldName => {
+        const field = moduleConfig.fields.find(f => f.name === fieldName);
+        if (!field) return null;
+        return {
+          name: field.name,
+          type: (() => {
+            switch (field.type) {
+              case 'number': return 'number';
+              case 'string': return 'string';
+              case 'Date': return 'Date';
+              case 'boolean': return 'boolean';
+              default: return 'any';
+            }
+          })(),
+          readonly: true,
+        };
+      }).filter(f => f !== null);
+    
       return {
-        name: field.name,
-        type: (() => {
-          switch(field.type) {
-            case 'number': return 'number';
-            case 'string': return 'string';
-            case 'Date': return 'Date';
-            case 'boolean': return 'boolean';
-            default: return 'any';
-          }
-        })(),
-        readonly: true
+        name: resp.name,
+        fields: responseFields,
       };
-    }).filter(f => f !== null);
+    });
     
 
 
@@ -165,9 +178,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         strategies,
         hasStrategies: strategies.length > 0,
         hasRepository,
-        response: {
-          fields: responseFields,
-        }
+        responses,
       }
     };
 
