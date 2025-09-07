@@ -8,7 +8,7 @@ import { {{name}} } from '../dtos/{{module_name}}.update.dto';
 {{/each}}
 
 @Controller('{{module.controllers.base_path}}')
-export class {{module.controllers.name}}Controller {
+export class {{module.controllers.name}} {
   constructor(private readonly service: {{module.name}}Service) {}
 
   {{#each module.controllers.methods}}

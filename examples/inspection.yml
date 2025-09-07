@@ -42,4 +42,47 @@ module:
         - type
         - inspection_date
         - status
+
+  update:
+    - name: "UpdateInspectionDto"
+      fields:
+        - title
+        - type
+        - inspection_date
+        - status
+  service:
+    methods:
+      - name: "findAll"
+        response: "InspectionResponseGeneralResponseDto"
+      - name: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "InspectionResponseGeneralResponseDto"
+      - name: "update"
+        update: "UpdateInspectionDto"
+        response: "InspectionResponseGeneralResponseDto"
+  controllers:
+    name: "InspectionController"
+    base_path: "inspections"
+    methods:
+      - name: "findAll"
+        http_method: "Get"
+        service: "findAll"
+        response: "InspectionResponseGeneralResponseDto"
+
+      - name: "findOne"
+        http_method: "Get"
+        route: ":id"
+        service: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "InspectionResponseGeneralResponseDto"
+
+      - name: "update"
+        http_method: "Patch"
+        service: "update"
+        body: "UpdateInspectionDto"
+        response: "InspectionResponseGeneralResponseDto"
   

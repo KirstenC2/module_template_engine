@@ -6,7 +6,7 @@ import { UpdateUserEmailDto } from '../dtos/user.update.dto';
 import { UpdateUserProfileDto } from '../dtos/user.update.dto';
 
 @Controller('users')
-export class UserControllerController {
+export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Get('')
