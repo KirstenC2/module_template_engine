@@ -1,0 +1,89 @@
+module:
+  name: "Status"
+  description: "状态模块"
+  tableName: "statuses"
+  output_dir: ./custom_generated
+  fields:
+    - name: "id"
+      type: "number"
+      required: true
+      primary_key: true
+    - name: "name"
+      type: "string"
+      required: true
+      max_length: 100
+    - name: "description"
+      type: "string"
+      required: true
+      max_length: 500
+    - name: "status"
+      type: "string"
+      required: true
+      enum: ["pending", "in_progress", "completed"]
+  generate_service: true
+  generate_repository: true
+  response:
+    - name: "StatusResponseGeneralResponseDto"
+      fields:
+        - name
+        - description
+        - status
+
+  update:
+    - name: "UpdateStatusDto"
+      fields:
+        - name
+        - description
+        - status
+  service:
+    methods:
+      - name: "findAll"
+        response: "StatusResponseGeneralResponseDto"
+      - name: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "StatusResponseGeneralResponseDto"
+      - name: "update"
+        update: "UpdateStatusDto"
+        response: "StatusResponseGeneralResponseDto"
+
+  controllers:
+    name: "StatusController"
+    base_path: "statuses"
+    methods:
+      - name: "findAll"
+        http_method: "Get"
+        service: "findAll"
+        response: "StatusResponseGeneralResponseDto"
+
+      - name: "findOne"
+        http_method: "Get"
+        route: ":id"
+        service: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "StatusResponseGeneralResponseDto"
+
+      - name: "update"
+        http_method: "Patch"
+        service: "update"
+        body: "UpdateStatusDto"
+        response: "StatusResponseGeneralResponseDto"
+
+  repository:
+    methods:
+      - name: "findAll"
+        action: "findAll"
+      - name: "findOneById"
+        action: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+      - name: "update"
+        action: "update"
+        params:
+          - name: "id"
+            type: "number"
+        update: "UpdateStatusDto"
