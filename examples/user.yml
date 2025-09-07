@@ -35,4 +35,12 @@ module:
       fields:
         - id
         - username
-      
+  update:
+    - name: "UpdateUserEmailDto"
+      fields:
+        - email
+
+    - name: "UpdateUserProfileDto"
+      fields:
+        - username
+        - role

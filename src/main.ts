@@ -27,6 +27,11 @@ interface ResponseConfig {
   fields: string[];   // e.g. ["id", "username"]
 }
 
+interface UpdateConfig {
+  name: string;
+  fields: string[];
+}
+
 interface ModuleConfig {
   name: string;
   description?: string;
@@ -36,6 +41,7 @@ interface ModuleConfig {
   strategies?: StrategyConfig[];
 
   response?: ResponseConfig[]; // 👈 now an array
+  update?: UpdateConfig[];
 }
 
 
@@ -159,13 +165,13 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
           readonly: true,
         };
       }).filter(f => f !== null);
-    
+
       return {
         name: resp.name,
         fields: responseFields,
       };
     });
-    
+
 
 
 
@@ -199,6 +205,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
       { template: 'model', filename: `${moduleNameLower}.model.ts`, description: 'Sequelize模型文件' },
       { template: 'dto', filename: `${moduleNameLower}.dto.ts`, description: '数据传输对象文件' },
       { template: 'response.dto', filename: `${moduleNameLower}.response.dto.ts`, description: '响应数据传输对象文件' },
+      { template: 'update.dto', filename: `${moduleNameLower}.update.dto.ts`, description: '更新数据传输对象文件' },
       { template: 'service', filename: `${moduleNameLower}.service.ts`, description: '服务层文件' },
       { template: 'controller', filename: `${moduleNameLower}.controller.ts`, description: '控制器文件' },
       { template: 'repository', filename: `${moduleNameLower}.repository.ts`, description: '仓库层文件' },
@@ -256,20 +263,34 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
           });
         }
 
-        if(moduleConfig.response){
-          const responseDir = path.join(outputDir, 'responses');
+        if (moduleConfig.response) {
+          const responseDir = path.join(outputDir, 'dtos');
           FileUtil.ensureDirectoryExists(responseDir);
-      
+
           const responsePath = path.join(responseDir, `${moduleNameLower}.response.dto.ts`);
-      
+
           if (engine.hasTemplate('dto', 'response.dto')) {
-              engine.generateFile(responsePath, 'dto', 'response.dto', templateData);
-              Logger.info(`✅ Response DTO generated at ${responsePath}`);
+            engine.generateFile(responsePath, 'dto', 'response.dto', templateData);
+            Logger.info(`✅ Response DTO generated at ${responsePath}`);
           } else {
-              Logger.warning('⚠️ response.dto template not found.');
+            Logger.warning('⚠️ response.dto template not found.');
           }
-      }
-      
+        }
+
+        if (moduleConfig.update) {
+          const updateDir = path.join(outputDir, 'dtos');
+          FileUtil.ensureDirectoryExists(updateDir);
+
+          const updatePath = path.join(updateDir, `${moduleNameLower}.update.dto.ts`);
+
+          if (engine.hasTemplate('dto', 'update.dto')) {
+            engine.generateFile(updatePath, 'dto', 'update.dto', templateData);
+            Logger.info(`✅ Update DTO generated at ${updatePath}`);
+          } else {
+            Logger.warning('⚠️ update.dto template not found.');
+          }
+        }
+
         if (success) successCount++;
 
       }
