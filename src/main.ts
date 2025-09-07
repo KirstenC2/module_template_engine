@@ -24,12 +24,22 @@ interface FieldConfig {
 
 interface ResponseConfig {
   name: string;       // e.g. "UserInfoResponseDto"
+  module_name: string;
   fields: string[];   // e.g. ["id", "username"]
 }
 
 interface UpdateConfig {
   name: string;
+  module_name: string;
   fields: string[];
+}
+
+interface ServiceConfig {
+  methods: {
+    name: string;
+    response?: string;
+    update?: string;
+  }[];
 }
 
 interface ModuleConfig {
@@ -42,6 +52,7 @@ interface ModuleConfig {
 
   response?: ResponseConfig[]; // 👈 now an array
   update?: UpdateConfig[];
+  service?: ServiceConfig;
 }
 
 
@@ -153,6 +164,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         if (!field) return null;
         return {
           name: field.name,
+          module_name: moduleConfig.name.toLowerCase(),
           type: (() => {
             switch (field.type) {
               case 'number': return 'number';
@@ -168,11 +180,37 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
 
       return {
         name: resp.name,
+        module_name: moduleConfig.name.toLowerCase(),
         fields: responseFields,
       };
     });
 
+    const updates = (moduleConfig.update || []).map(update => {
+      const updateFields = (update.fields || []).map(fieldName => {
+        const field = moduleConfig.fields.find(f => f.name === fieldName);
+        if (!field) return null;
+        return {
+          name: field.name,
+          module_name: moduleConfig.name.toLowerCase(),
+          type: (() => {
+            switch (field.type) {
+              case 'number': return 'number';
+              case 'string': return 'string';
+              case 'Date': return 'Date';
+              case 'boolean': return 'boolean';
+              default: return 'any';
+            }
+          })(),
+          readonly: false,
+        };
+      }).filter(f => f !== null);
 
+      return {
+        name: update.name,
+        module_name: moduleConfig.name.toLowerCase(),
+        fields: updateFields,
+      };
+    });
 
 
 
@@ -185,6 +223,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         hasStrategies: strategies.length > 0,
         hasRepository,
         responses,
+        updates,
       }
     };
 

@@ -6,6 +6,19 @@ import { {{module.name}}Repository } from '../repositorys/{{module.nameLower}}.r
 {{#if module.hasStrategies}}
 import { {{module.name}}StrategyFactory } from '../strategies/{{module.nameLower}}-strategy.factory';
 {{/if}}
+{{#if module.responses}}
+
+{{#each module.responses}}
+import { {{name}} } from '../dtos/{{module_name}}.response.dto';
+{{/each}}
+{{/if}}
+
+{{#if module.updates}}
+{{#each module.updates}}
+import { {{name}} } from '../dtos/{{module_name}}.update.dto';
+{{/each}}
+{{/if}}
+
 
 @Injectable()
 export class {{module.name}}Service {
@@ -20,28 +33,34 @@ export class {{module.name}}Service {
 
   ) {}
 
-  async create(data: any) {
-    {{#if module.hasStrategies}}
-    const strategy = this.strategyFactory.getStrategy(data.type);
-    return strategy.create(data);
+  {{#each module.service.methods}}
+  async {{name}}(
+    {{#if params}}
+      {{#each params}}
+      {{name}}: {{type}}{{#unless @last}},{{/unless}}
+      {{/each}}
+    {{/if}}
+    {{#if update}}
+      {{#if params}}, {{/if}}dto: {{update}}
+    {{/if}}
+  ): Promise<{{response}}> {
+    {{#if (eq name "findAll")}}
+      {{#if ../../module.hasRepository}}
+      return this.{{../../module.nameLower}}Repository.findAll();
+      {{else}}
+      throw new Error('findAll not supported');
+      {{/if}}
+    {{else if (eq name "findOne")}}
+      {{#if ../../module.hasRepository}}
+      return this.{{../../module.nameLower}}Repository.findOne(id);
+      {{else}}
+      throw new Error('findOne not supported');
+      {{/if}}
     {{else}}
-    return this.{{module.nameLower}}Repository.create(data);
+      // TODO: implement {{name}}
+      return {} as {{response}};
     {{/if}}
   }
+  {{/each}}
 
-  async findAll(){
-    {{#if module.hasRepository}}
-    return this.{{module.nameLower}}Repository.findAll();
-    {{else}}
-    throw new Error('findAll not supported (no repository)');
-    {{/if}}
-  }
-
-  async findOne(id: number){
-    {{#if module.hasRepository}}
-    return this.{{module.nameLower}}Repository.findOne(id);
-    {{else}}
-    throw new Error('findOne not supported (no repository)');
-    {{/if}}
-  }
 }

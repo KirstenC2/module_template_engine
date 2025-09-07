@@ -44,3 +44,18 @@ module:
       fields:
         - username
         - role
+  service:
+    methods:
+      - name: "findAll"
+        response: "UserResponseGeneralResponseDto"
+      - name: "findOne"
+        params:
+          - name: "id"
+            type: "number"
+        response: "UserInfoResponseDto"
+      - name: "updateEmail"
+        update: "UpdateUserEmailDto"
+        response: "UserInfoResponseDto"
+      - name: "updateProfile"
+        update: "UpdateUserProfileDto"
+        response: "UserResponseGeneralResponseDto"
