@@ -238,6 +238,7 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         fields: updateFields,
       };
     });
+    
 
     
     const templateData = {
@@ -252,13 +253,15 @@ async function generateFromConfig(configPath: string, engine: TemplateEngine): P
         updates
       },
       controller: moduleConfig.controllers ? moduleConfig.controllers : null,
-      service: moduleConfig.service ? moduleConfig.service : null,
-      repository: moduleConfig.repository ? moduleConfig.repository : null,
+      service: {
+        ...moduleConfig.service ? moduleConfig.service : null,
+        className: moduleConfig.name.toLowerCase(),
+      },
+      repository: {
+        ...moduleConfig.repository ? moduleConfig.repository : null,
+        className: moduleConfig.name.toLowerCase(),
+      },
     };
-
-
-    
-
 
     Logger.info(`模块名称: ${moduleName}`);
     Logger.info(`数据表名: ${templateData.module.tableName}`);

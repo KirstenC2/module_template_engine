@@ -38,15 +38,21 @@ module:
   service:
     methods:
       - name: "findAll"
-        response: "StatusResponseGeneralResponseDto"
+        repository: "findAll"
+        response: "StatusResponseGeneralResponseDto[] | null"
       - name: "findOne"
         params:
           - name: "id"
             type: "number"
-        response: "StatusResponseGeneralResponseDto"
+        repository: "findOneById"
+        response: "StatusResponseGeneralResponseDto | null"
       - name: "update"
+        params:
+          - name: "id"
+            type: "number"
+        repository: "update"
         update: "UpdateStatusDto"
-        response: "StatusResponseGeneralResponseDto"
+        response: "StatusResponseGeneralResponseDto | null"
 
   controllers:
     name: "StatusController"
@@ -55,7 +61,7 @@ module:
       - name: "findAll"
         http_method: "Get"
         service: "findAll"
-        response: "StatusResponseGeneralResponseDto"
+        response: "StatusResponseGeneralResponseDto[] | null"
 
       - name: "findOne"
         http_method: "Get"
@@ -64,13 +70,13 @@ module:
         params:
           - name: "id"
             type: "number"
-        response: "StatusResponseGeneralResponseDto"
+        response: "StatusResponseGeneralResponseDto | null"
 
       - name: "update"
         http_method: "Patch"
         service: "update"
         body: "UpdateStatusDto"
-        response: "StatusResponseGeneralResponseDto"
+        response: "StatusResponseGeneralResponseDto | null"
 
   repository:
     methods:

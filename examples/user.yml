@@ -48,18 +48,28 @@ module:
   service:
     methods:
       - name: "findAll"
-        response: "UserResponseGeneralResponseDto"
+        repository: "findAll"
+        response: "UserResponseGeneralResponseDto[] | null"
       - name: "findOne"
         params:
           - name: "id"
             type: "number"
-        response: "UserInfoResponseDto"
+        repository: "findOneById"
+        response: "UserInfoResponseDto | null"
       - name: "updateEmail"
+        params:
+          - name: "id"
+            type: "number"
         update: "UpdateUserEmailDto"
-        response: "UserInfoResponseDto"
+        repository: "updateEmail"
+        response: "UserInfoResponseDto | null"
       - name: "updateProfile"
+        params:
+          - name: "id"
+            type: "number"
         update: "UpdateUserProfileDto"
-        response: "UserResponseGeneralResponseDto"
+        repository: "updateProfile"
+        response: "UserResponseGeneralResponseDto | null"
   controllers:
     name: "UserController"
     base_path: "users"
@@ -67,7 +77,7 @@ module:
       - name: "findAll"
         http_method: "Get"
         service: "findAll"
-        response: "UserResponseGeneralResponseDto"
+        response: "UserResponseGeneralResponseDto[] | null"
 
       - name: "findOne"
         http_method: "Get"
@@ -76,19 +86,19 @@ module:
         params:
           - name: "id"
             type: "number"
-        response: "UserInfoResponseDto"
+        response: "UserInfoResponseDto | null"
 
       - name: "updateEmail"
         http_method: "Patch"
         service: "updateEmail"
         body: "UpdateUserEmailDto"
-        response: "UserInfoResponseDto"
+        response: "UserInfoResponseDto | null"
 
       - name: "updateProfile"
         http_method: "Patch"
         service: "updateProfile"
         body: "UpdateUserProfileDto"
-        response: "UserResponseGeneralResponseDto"
+        response: "UserResponseGeneralResponseDto | null"
   repository:
     methods:
       - name: "findAll"

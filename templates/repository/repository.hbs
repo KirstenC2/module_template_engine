@@ -35,11 +35,17 @@ export class {{module.name}}Repository {
     {{else}}
       {{! fallback: use repository method name as model method }}
       {{~#if this.update~}}
+        if (!updateDto) {
+          return [0]; // Return [0] to match Sequelize's update return type
+        }
         return this.model.{{this.name}}(
           updateDto,
           { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
         );
       {{~else if this.params~}}
+        if (!updateDto) {
+          return [0]; // Return [0] to match Sequelize's update return type
+        }
         return this.model.{{this.name}}(
           { where: { {{#each this.params}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}} } }
         );

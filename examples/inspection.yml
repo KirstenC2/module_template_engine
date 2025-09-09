@@ -53,15 +53,23 @@ module:
   service:
     methods:
       - name: "findAll"
-        response: "InspectionResponseGeneralResponseDto"
+        repository: "findAll"
+        response: "InspectionResponseGeneralResponseDto[] | null"
+
       - name: "findOne"
         params:
           - name: "id"
             type: "number"
-        response: "InspectionResponseGeneralResponseDto"
+        repository: "findOneById"
+        response: "InspectionResponseGeneralResponseDto | null"
+
       - name: "update"
+        params:
+          - name: "id"
+            type: "number"
         update: "UpdateInspectionDto"
-        response: "InspectionResponseGeneralResponseDto"
+        repository: "update"
+        response: "InspectionResponseGeneralResponseDto | null"
 
   controllers:
     name: "InspectionController"
@@ -70,7 +78,7 @@ module:
       - name: "findAll"
         http_method: "Get"
         service: "findAll"
-        response: "InspectionResponseGeneralResponseDto"
+        response: "InspectionResponseGeneralResponseDto[] | null"
 
       - name: "findOne"
         http_method: "Get"
@@ -79,13 +87,13 @@ module:
         params:
           - name: "id"
             type: "number"
-        response: "InspectionResponseGeneralResponseDto"
+        response: "InspectionResponseGeneralResponseDto | null"
 
       - name: "update"
         http_method: "Patch"
         service: "update"
         body: "UpdateInspectionDto"
-        response: "InspectionResponseGeneralResponseDto"
+        response: "InspectionResponseGeneralResponseDto | null"
 
   repository:
     methods:

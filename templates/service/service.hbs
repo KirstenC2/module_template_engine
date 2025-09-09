@@ -19,7 +19,6 @@ import { {{name}} } from '../dtos/{{module_name}}.update.dto';
 {{/each}}
 {{/if}}
 
-
 @Injectable()
 export class {{module.name}}Service {
   constructor(
@@ -27,40 +26,51 @@ export class {{module.name}}Service {
     private readonly strategyFactory: {{module.name}}StrategyFactory
     {{/if}}
     {{#if module.hasRepository}}
-    {{#if module.hasStrategies}}, {{/if}}
+      {{#if module.hasStrategies}}, {{/if}}
     private readonly {{module.nameLower}}Repository: {{module.name}}Repository
     {{/if}}
-
   ) {}
 
-  {{#each module.service.methods}}
-  async {{name}}(
-    {{#if params}}
-      {{#each params}}
-      {{name}}: {{type}}{{#unless @last}},{{/unless}}
-      {{/each}}
-    {{/if}}
-    {{#if update}}
-      {{#if params}}, {{/if}}dto: {{update}}
-    {{/if}}
-  ): Promise<{{response}}> {
-    {{#if (eq name "findAll")}}
-      {{#if ../../module.hasRepository}}
-      return this.{{../../module.nameLower}}Repository.findAll();
-      {{else}}
-      throw new Error('findAll not supported');
+ {{#each module.service.methods}}
+    async {{name}}(
+      {{#if params}}
+        {{#each params}}
+        {{name}}: {{type}}{{#unless @last}}, {{/unless}}
+        {{/each}}
       {{/if}}
-    {{else if (eq name "findOne")}}
-      {{#if ../../module.hasRepository}}
-      return this.{{../../module.nameLower}}Repository.findOne(id);
-      {{else}}
-      throw new Error('findOne not supported');
+      {{#if update}}
+        {{#if params}}, {{/if}}dto: {{update}}
       {{/if}}
-    {{else}}
-      // TODO: implement {{name}}
-      return {} as {{response}};
-    {{/if}}
-  }
+    ): Promise<{{response}}> {
+      {{#if repository}}
+        {{#if update}}
+          let [affectedCount] = await this.{{../module.nameLower}}Repository.{{repository}}(
+            {{#if params}}
+              {{#each params}}
+              {{name}},
+              {{/each}}
+            {{/if}}
+            dto
+          );
+          if (affectedCount === 0) {
+            return null;
+          }
+          return this.findOne(id);
+        {{else}}
+          let result = await this.{{../module.nameLower}}Repository.{{repository}}(
+            {{#if params}}
+              {{#each params}}
+              {{name}}{{#unless @last}}, {{/unless}}
+              {{/each}}
+            {{/if}}
+          );
+          return result ;
+        {{/if}}
+      {{else}}
+        // TODO: implement {{name}}
+        return {} as {{response}};
+      {{/if}}
+    }
   {{/each}}
 
 }
